@@ -76,7 +76,7 @@ def raycast_accurate(base_obj, camera, visibility_threshold=0.5,bbox=None,
             loc_in_box = is_point_in_bbox(bbox, loc)
             # print("location in box: ",loc_in_box)
 
-        if hit and hit_obj == expected_hit_obj and loc_in_box:
+        if hit and hit_obj.name == expected_hit_obj.name and loc_in_box:
             visible_count += 1
 
     obj_eval.to_mesh_clear()
@@ -98,12 +98,14 @@ def raycast_fast(target_location, camera, instance_object, bbox=None):
 
     hit, loc, norm, idx, hit_obj, matrix = scene.ray_cast(depsgraph, cam_location, direction)
     print("raycast hit loc: ", loc)
+    print("hit object: ", hit_obj)
+    print("desired object: ", instance_object)
     loc_in_box = False
     if bbox is not None:
         loc_in_box = is_point_in_bbox(bbox, loc)
         print("location in box: ",loc_in_box)
 
-    return hit and hit_obj == instance_object and (bbox is None or loc_in_box)
+    return hit and hit_obj.name == instance_object.name and (bbox is None or loc_in_box)
 
 
 # Experimental convex hull raycast
@@ -171,23 +173,6 @@ def raycast_with_bvh(obj, camera, visible_points_world, visibility_threshold, bb
     visibility_ratio = hits / len(visible_points_world)
 
     return visibility_ratio >= visibility_threshold
-    # mesh = eval_obj.to_mesh()
-    # if not mesh:
-    #     print(f"⚠️ Skipping BVH check — mesh not found for {obj.name}")
-    #     return False
-
-    # bvh = BVHTree.FromBMesh(mesh)
-    # hits = 0
-
-    # for point in visible_points_world:
-    #     direction = (point - cam_location).normalized()
-    #     hit = bvh.ray_cast(cam_location, direction)
-    #     if hit[0] is not None:
-    #         hits += 1
-
-    # eval_obj.to_mesh_clear()
-    # visibility_ratio = hits / len(visible_points_world)
-    # return visibility_ratio >= visibility_threshold
 
     
 def project_world_corners_to_ndc(corners_world, camera, scene):
@@ -259,6 +244,13 @@ def calculate_bbox_from_ndc(corners_ndc, render_size, visibility_threshold, min_
 
     return (min_x, min_y), (max_x, max_y)
 
+def get_bbox_center_world(obj):
+    # Each corner is in object space, so transform with obj.matrix_world
+    bbox_corners_world = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    
+    # Compute the average of the corners to get the center
+    center_world = sum(bbox_corners_world, Vector()) / 8
+    return center_world
 
 def get_filtered_bbox(obj, cam, render_resolution, *,min_bbox_size=5,visibility_threshold=0.5, use_raycast=True, raycast_method="accurate"):
     # Get the active scene and object's bounding box corners in world space
@@ -284,7 +276,8 @@ def get_filtered_bbox(obj, cam, render_resolution, *,min_bbox_size=5,visibility_
         if raycast_method == "accurate":
             is_visible = raycast_accurate(obj, cam, visibility_threshold, bbox=corners_world)
         elif raycast_method == "fast":
-            obj_origin = obj.matrix_world @ Vector((0, 0, 0))
+            # obj_origin = obj.matrix_world @ Vector((0, 0, 0))
+            obj_origin = get_bbox_center_world(obj)
             is_visible = raycast_fast(obj_origin, cam, obj)
         if not is_visible:
             return None
@@ -292,27 +285,29 @@ def get_filtered_bbox(obj, cam, render_resolution, *,min_bbox_size=5,visibility_
     return bbox_2d
 
 
-def get_particle_2d_bounding_box(particle, mesh_obj, camera_obj, scene,
+
+
+def get_instance_2d_bounding_box(matrix_world, instance_obj, camera_obj, scene,
                                  min_bbox_size=5, use_raycast=False,
                                  raycast_method='fast', visibility_threshold=0.5):
-    # Convert mesh bounding box to local corners
-    local_bbox_corners = [Vector(corner) for corner in mesh_obj.bound_box]
+    """
+    Compute 2D bounding box for a single instanced object given a transform matrix.
+    Works for particles, GN instances, and collection instances.
+    """
+    if instance_obj.type != 'MESH':
+        return None
 
-    # Compute world transform of the particle (position, rotation, scale)
-    particle_matrix = Matrix.LocRotScale(
-        particle.location,
-        particle.rotation,
-        Vector.Fill(3, particle.size)
-    )
+    # Local space bbox
+    local_bbox_corners = [Vector(corner) for corner in instance_obj.bound_box]
 
-    # Transform local corners to world space at the particle
-    corners_world = [particle_matrix @ c for c in local_bbox_corners]
+    # Convert to world space
+    corners_world = [matrix_world @ c for c in local_bbox_corners]
     render_size = (scene.render.resolution_x, scene.render.resolution_y)
 
-    # Project to NDC space
+    # Project to 2D (NDC space)
     corners_ndc = project_world_corners_to_ndc(corners_world, camera_obj, scene)
 
-    # Compute 2D bounding box from projected coordinates
+    # Convert to 2D bbox
     bbox_2d = calculate_bbox_from_ndc(
         corners_ndc, render_size,
         visibility_threshold, min_bbox_size
@@ -321,18 +316,23 @@ def get_particle_2d_bounding_box(particle, mesh_obj, camera_obj, scene,
     if bbox_2d is None:
         return None
 
-    # Optionally verify visibility with raycasting
     if use_raycast:
-        
         is_visible = False
         if raycast_method == "accurate":
-            is_visible = raycast_accurate(mesh_obj, camera_obj, visibility_threshold, bbox=corners_world, world_matrix=particle_matrix)
+            is_visible = raycast_accurate(instance_obj, camera_obj, visibility_threshold,
+                                          bbox=corners_world, world_matrix=matrix_world)
         elif raycast_method == "fast":
-            is_visible = raycast_fast(particle.location, camera_obj, mesh_obj, bbox=corners_world)
+            # origin = matrix_world @ Vector((0, 0, 0))
+            # obj_origin = get_bbox_center_world(instance_obj)
+            obj_origin = sum(corners_world, Vector()) / 8
+            print("Target_Location (instance): ", obj_origin)
+            print("Target_Location: ", obj_origin)
+            is_visible = raycast_fast(obj_origin, camera_obj, instance_obj, bbox=corners_world)
         if not is_visible:
             return None
 
     return bbox_2d
+
 
 def loop_over_particles(sel_emitter, cam, scene, *,
                         min_bbox_size=5, use_raycast=False,
@@ -355,10 +355,31 @@ def loop_over_particles(sel_emitter, cam, scene, *,
         if not instance_obj:
             continue
 
+        psys_type = psys_settings.type
+        print("Type: ", psys_type)
+
         for p in psys.particles:
-            bb_2d = get_particle_2d_bounding_box(
-                particle=p,
-                mesh_obj=instance_obj,
+            # Compute world transform of the particle (position, rotation, scale)
+            
+            if psys_type == "HAIR":
+                # case for hair system
+                particle_matrix = Matrix.LocRotScale(
+                    p.hair_keys[0].co,
+                    p.rotation,
+                    Vector.Fill(3,p.size)
+                )
+            else:
+                # Case for normal particle system
+                particle_matrix = Matrix.LocRotScale(
+                    p.location,
+                    p.rotation,
+                    Vector.Fill(3, p.size)
+                )
+            # compute 2D bounding box
+            
+            bb_2d = get_instance_2d_bounding_box(
+                matrix_world=particle_matrix,
+                instance_obj=instance_obj,
                 camera_obj=cam,
                 scene=scene,
                 min_bbox_size=min_bbox_size,
@@ -371,3 +392,78 @@ def loop_over_particles(sel_emitter, cam, scene, *,
                 cat_ids.append(cat_id)
 
     return bboxes, cat_ids
+
+
+def filter_objects_for_instance_selection(selection_list):
+    """
+    Return a filtered list of objects with include_instances enabled.
+    """
+    return [
+        sel_item for sel_item in selection_list
+        if sel_item.include_instances and sel_item.object is not None
+    ]
+
+
+def loop_over_instances_from_selection(filtered_selection_list, cam, scene, *,
+                                       min_bbox_size=5, use_raycast=False,
+                                       raycast_method='fast', visibility_threshold=0.5):
+    """
+    Iterate over depsgraph instances, matching against a filtered list of original objects
+    (with assigned category IDs), and compute bounding boxes.
+    Assumes filtering by 'include_instances' was already performed.
+    """
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    bboxes = []
+    cat_ids = []
+
+    # Build a lookup from object -> category ID
+    object_to_cat = {
+        sel_item.object: sel_item.category_id
+        for sel_item in filtered_selection_list
+        if sel_item.object is not None
+    }
+    print("Obj to Cat: ", object_to_cat)
+    for inst in depsgraph.object_instances:
+        if not inst.is_instance:
+            print("not instance")
+            continue
+        print("is instance")
+
+        # Get the source mesh from evaluated instance object
+        source_obj = inst.object.evaluated_get(depsgraph)
+        print("Source Object: ", source_obj)
+        if not source_obj or source_obj.type != 'MESH':
+            continue
+
+        # Match source_obj against user-specified originals (by identity or data block)
+        matched_cat_id = None
+        for match_obj, cat_id in object_to_cat.items():
+            if source_obj.original == match_obj or source_obj.data == match_obj.data:
+                matched_cat_id = cat_id
+                break
+
+        if matched_cat_id is None:
+            print("No matched category ID")
+            continue
+        print("Matched cat id: ", matched_cat_id)
+
+        bb_2d = get_instance_2d_bounding_box(
+            matrix_world=inst.matrix_world,
+            instance_obj=source_obj,
+            camera_obj=cam,
+            scene=scene,
+            min_bbox_size=min_bbox_size,
+            use_raycast=use_raycast,
+            raycast_method=raycast_method,
+            visibility_threshold=visibility_threshold
+        )
+
+        if bb_2d:
+            bboxes.append(bb_2d)
+            cat_ids.append(matched_cat_id)
+
+    return bboxes, cat_ids
+
+
+
+

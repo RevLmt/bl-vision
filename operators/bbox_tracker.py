@@ -1,9 +1,28 @@
+'''
+Copyright (C) 2025 RRX Engineering
+http://www.rrxengineering.com
+
+Created by Ryan Revilla
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
 
 import bpy
 import os
 from ..utils.yolo_bbox import generate_yolo_category_files, save_bboxes_yolo_format
 from ..utils.coco_bbox import save_bboxes_coco_format
-from ..utils.bbox_utils import loop_over_particles, get_filtered_bbox
+from ..utils.bbox_utils import loop_over_particles, get_filtered_bbox, loop_over_instances_from_selection, filter_objects_for_instance_selection
 
 class RunMeshBBoxOperator(bpy.types.Operator):
     """Run YOLO Bounding Box Detection"""
@@ -61,13 +80,41 @@ class RunMeshBBoxOperator(bpy.types.Operator):
                 category_name = obj.name
                 category_mapping[cat_id] = category_name
 
-                if obj.type == 'MESH':
-                    bbox_2d = get_filtered_bbox(obj, cam, render_res, use_raycast=use_raycast, raycast_method=raycast_method,visibility_threshold=visibility_threshold)
+                if obj and obj.type == 'MESH':
+                    bbox_2d = get_filtered_bbox(
+                        obj,
+                        cam,
+                        render_res,
+                        use_raycast=use_raycast,
+                        raycast_method=raycast_method,
+                        visibility_threshold=visibility_threshold
+                    )
                     if bbox_2d:
                         bboxes.append(bbox_2d)
                         cat_ids.append(cat_id)
                     else:
                         num_blocked += 1
+
+            # ✅ Process instanced versions if checkbox is enabled
+            filtered_instance_objs = filter_objects_for_instance_selection(object_list)
+            print("Filtered object list: ", filtered_instance_objs)
+            if filtered_instance_objs:
+                instance_bboxes, instance_cat_ids = loop_over_instances_from_selection(
+                    filtered_selection_list=filtered_instance_objs,
+                    cam=cam,
+                    scene=scene,
+                    min_bbox_size=5,
+                    use_raycast=use_raycast,
+                    raycast_method=raycast_method,
+                    visibility_threshold=visibility_threshold
+                )
+                bboxes.extend(instance_bboxes)
+                cat_ids.extend(instance_cat_ids)
+
+            # for obj_wrapper in object_list:
+            #     if obj_wrapper.include_instances and obj_wrapper.object:
+            #         inst_cat_id = obj_wrapper.category_id
+            #         category_mapping[inst_cat_id] = f"{obj_wrapper.object.name} (Instance)"
 
         elif mode == 'PARTICLE':
             emitter_list = scene.blv_settings.selected_emitter
@@ -92,22 +139,17 @@ class RunMeshBBoxOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-
 class ChangeRenderDirectoryToFormat(bpy.types.Operator):
     bl_idname = "blv.change_render_dir_to_format"
     bl_label = "Change render directory to specified object detection format"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        # setup_render_settings()
         scene = context.scene
-
         directory = scene.blv_save.root_path
         img_dir = os.path.join(directory,'images/')
         scene.render.filepath = img_dir
-
         return {'FINISHED'}
-
 
 
 def register():
@@ -117,5 +159,3 @@ def register():
 def unregister():
     bpy.utils.unregister_class(RunMeshBBoxOperator)
     bpy.utils.unregister_class(ChangeRenderDirectoryToFormat)
-
-

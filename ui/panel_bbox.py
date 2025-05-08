@@ -29,6 +29,12 @@ class BBoxSelectionItem(bpy.types.PropertyGroup):
     object: bpy.props.PointerProperty(type=bpy.types.Object)
     emitter_obj: bpy.props.PointerProperty(type=bpy.types.Object)
     category_id: bpy.props.IntProperty(name="Category")
+    include_instances: bpy.props.BoolProperty(
+        name="Include Instances",
+        description="Include instanced versions of this object (via geometry nodes, collection instancing, etc.)",
+        default=False
+    )
+
 
 
 class BBoxTrackingProperties(bpy.types.PropertyGroup):
@@ -62,6 +68,7 @@ class BBOX_UL_ObjectList(bpy.types.UIList):
         row = layout.row(align=True)
         row.prop(item, "object", text="", emboss=True)
         row.prop(item, "category_id", text="", emboss=True)
+        row.prop(item, "include_instances", text="", icon='MOD_ARRAY', emboss=True)
 
 
 class BBOX_UL_CollectionList(bpy.types.UIList):
@@ -101,6 +108,7 @@ class BBOX_PT_TrackingPanel(bpy.types.Panel):
             header = col.row(align=True)
             header.label(text="Object")
             header.label(text="Category")
+            header.label(text="Use Instances", icon='MOD_ARRAY')
             col.template_list("BBOX_UL_ObjectList", "", settings, "selected_objects", settings, "active_object_index")
 
             row = col.row(align=True)
@@ -279,6 +287,10 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
+
+
 
 
 

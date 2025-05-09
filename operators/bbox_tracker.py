@@ -22,7 +22,7 @@ import bpy
 import os
 from ..utils.yolo_bbox import generate_yolo_category_files, save_bboxes_yolo_format
 from ..utils.coco_bbox import save_bboxes_coco_format
-from ..utils.bbox_utils import loop_over_particles, get_filtered_bbox, loop_over_instances_from_selection, filter_objects_for_instance_selection
+from ..utils.bbox_utils import loop_over_particles, get_filtered_bbox, loop_over_instances_from_selection
 
 class RunMeshBBoxOperator(bpy.types.Operator):
     """Run Mesh Bounding Box Detection"""

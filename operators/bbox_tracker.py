@@ -218,10 +218,10 @@ def compute_bounding_boxes(scene, include_save=True):
         if formatting == "YOLO":
             generate_yolo_category_files(label_dir, category_mapping)
             save_bboxes_yolo_format(bboxes, cat_ids, scene.frame_current,
-                                    render_res[0], render_res[1], label_dir, category_mapping)
+                                    render_res[0], render_res[1], label_dir, category_mapping,prefix=scene.blv_save.file_prefix)
         elif formatting == "COCO":
             save_bboxes_coco_format(bboxes, cat_ids, scene.frame_current,
-                                    render_res[0], render_res[1], label_dir)
+                                    render_res[0], render_res[1], label_dir, prefix=scene.blv_save.file_prefix)
 
     return bboxes, cat_ids, num_blocked, category_mapping, messages
 

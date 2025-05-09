@@ -25,11 +25,11 @@ import os
 # Data formatting and saving
 ###
 
-def save_bboxes_yolo_format(bboxes, category_ids, frame_num, image_width, image_height, output_dir, category_mapping):
+def save_bboxes_yolo_format(bboxes, category_ids, frame_num, image_width, image_height, output_dir, category_mapping, prefix=""):
     """ Saves bounding boxes in YOLO format and generates category files """
 
     os.makedirs(output_dir, exist_ok=True)
-    label_file = os.path.join(output_dir, f"{frame_num:04d}.txt")
+    label_file = os.path.join(output_dir, f"{prefix}{frame_num:04d}.txt")
 
     if not bboxes:
         print(f"⚠️ No valid bboxes for frame {frame_num}. Skipping file.")

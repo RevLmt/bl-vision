@@ -21,13 +21,13 @@ Created by Ryan Revilla
 import os
 import json
 
-def save_bboxes_coco_format(bboxes, category_ids, frame_num, image_width, image_height, output_dir):
+def save_bboxes_coco_format(bboxes, category_ids, frame_num, image_width, image_height, output_dir, prefix=""):
     """ Saves bounding boxes in COCO JSON format """
     
     os.makedirs(output_dir, exist_ok=True)
     json_path = os.path.join(output_dir, "annotations.json")
 
-    image_filename = f"{frame_num:04d}.png"
+    image_filename = f"{prefix}{frame_num:04d}.png"
 
     # Try to load existing data
     if os.path.exists(json_path):

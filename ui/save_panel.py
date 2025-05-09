@@ -58,7 +58,7 @@ class saveDataProperties(bpy.types.PropertyGroup):
         name="Bounding Box",
         description="Output bounding boxes",
         default=False,
-        update=lambda self, context: toggle_render_handler(self, context),
+        update=lambda self, context: update_handler_and_render_path(self, context),
     )
     segm_bool: bpy.props.BoolProperty(
         name="Segmentation (Coming Soon)",
@@ -73,7 +73,6 @@ class saveDataProperties(bpy.types.PropertyGroup):
             ("SEMANTIC", "Semantic", "Save semantic (categorical) segmentation"),
         ]
     )
-
     use_custom_paths: bpy.props.BoolProperty(
         name="Custom Paths",
         description="Enable manual path overrides for images and labels/annotations.",
@@ -83,12 +82,18 @@ class saveDataProperties(bpy.types.PropertyGroup):
         name="Custom Image Path",
         subtype="DIR_PATH",
         default="",
-        update=lambda self, context: toggle_render_handler(self, context),
+        update=lambda self, context: toggle_change_render_dir(self, context),
     )
     custom_label_path: bpy.props.StringProperty(
         name="Custom Label/Annotation Path",
         subtype="DIR_PATH",
         default=""
+    )
+    file_prefix: bpy.props.StringProperty(
+        name="Filename Prefix",
+        description="Prefix for images and label filenames",
+        default="_",
+        update=lambda self, context: toggle_change_render_dir(self, context),
     )
     image_path: bpy.props.StringProperty(
         name="Resolved Image Path",
@@ -140,7 +145,7 @@ def ensure_label_folder_exists(path):
 def toggle_change_render_dir(self, context):
     if self.bbox_bool:
         image_path, label_path = get_dataset_paths(self)
-        bpy.context.scene.render.filepath = image_path + os.sep
+        bpy.context.scene.render.filepath = os.path.join(image_path, self.file_prefix)
         self.image_path = image_path
         self.label_path = label_path
         print(f"Render filepath set to: {image_path}")
@@ -185,6 +190,11 @@ def auto_register_handler_on_load(_):
         print("re-registering")
         toggle_render_handler(scene.blv_save, bpy.context)
 
+def update_handler_and_render_path(self, context):
+    toggle_change_render_dir(self, context)
+    toggle_render_handler(self, context)
+    
+
 # Save UI Panel
 class saveDataPanel(bpy.types.Panel):
     bl_idname = "VIEW_3D_PT_saveDataPanel"
@@ -208,6 +218,7 @@ class saveDataPanel(bpy.types.Panel):
         col.prop(save_props, "segm_bool")
         if save_props.bbox_bool:
             layout.prop(save_props, "root_path")
+            layout.prop(save_props, "file_prefix")
             layout.prop(save_props, "use_custom_paths")
             if save_props.use_custom_paths:
                 layout.prop(save_props, "custom_image_path")

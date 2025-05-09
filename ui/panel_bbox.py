@@ -67,7 +67,7 @@ class BBoxTrackingProperties(bpy.types.PropertyGroup):
         name="Raycast method",
         description="Choose between different raycast methods to check for blocked (occluded) objects.",
         items=[
-            ("fast", "Object Origin (Fast)", "Casts a single ray to the object center."),
+            ("fast", "BBox Origin (Fast)", "Casts a single ray to the object's 3D bounding box center."),
             ("accurate", "Projected Mesh (Accurate)", "Casts rays to all object mesh that is facing the camera."),
         ]
     )

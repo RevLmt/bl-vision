@@ -78,123 +78,6 @@ class ChangeRenderDirectoryToFormat(bpy.types.Operator):
         return {'FINISHED'}
 
 
-# def compute_bounding_boxes(scene, include_save=True):
-#     """
-#     Computes 2D bounding boxes for objects in the scene using the active camera.
-#     Returns:
-#         bboxes: List of 2D bounding box data
-#         cat_ids: Corresponding category IDs
-#         num_blocked: Number of objects filtered out / blocked
-#         category_mapping: Dict of category_id -> category_name
-#         objects: List of objects that produced valid bboxes
-#     """
-#     cam = scene.camera
-#     if not cam:
-#         return [], [], 0, {}, [], [('ERROR', 'Camera not found!')]
-
-#     render_res = (scene.render.resolution_x, scene.render.resolution_y)
-#     bboxes = []
-#     cat_ids = []
-#     num_blocked = 0
-#     category_mapping = {}
-#     messages = []
-
-#     label_dir = scene.blv_save.label_path
-#     save_bool = include_save and scene.blv_save.bbox_bool
-#     mode = scene.blv_settings.mode
-#     formatting = scene.blv_save.format_enum
-
-#     use_raycast = scene.blv_settings.raycast_bool
-#     raycast_method = scene.blv_settings.raycast_enum
-#     visibility_threshold = scene.blv_settings.visibility_threshold
-
-#     if mode == "COLLECTION":
-#         collection_list = scene.blv_settings.selected_collections
-#         if not collection_list or not collection_list[0].collection:
-#             return [], [], 0, {}, [], [('ERROR', 'No valid collection selected!')]
-
-#         for col in collection_list:
-#             cat_id = col.category_id
-#             category_name = col.collection.name
-#             category_mapping[cat_id] = category_name
-#             object_list = col.collection.objects
-#             include_instances = col.include_instances
-
-#             for obj in object_list:
-#                 if obj.type == 'MESH':
-#                     bbox_2d = get_filtered_bbox(obj, cam, render_res,
-#                                                 use_raycast=use_raycast,
-#                                                 raycast_method=raycast_method,
-#                                                 visibility_threshold=visibility_threshold)
-#                     if bbox_2d:
-#                         bboxes.append(bbox_2d)
-#                         cat_ids.append(cat_id)
-#                     else:
-#                         num_blocked += 1
-
-#     elif mode == "OBJECT":
-#         object_list = scene.blv_settings.selected_objects
-
-#         for obj_wrapper in object_list:
-#             obj = obj_wrapper.object
-#             cat_id = obj_wrapper.category_id
-#             category_mapping[cat_id] = obj.name
-
-#             if obj and obj.type == 'MESH':
-#                 bbox_2d = get_filtered_bbox(obj, cam, render_res,
-#                                             use_raycast=use_raycast,
-#                                             raycast_method=raycast_method,
-#                                             visibility_threshold=visibility_threshold)
-#                 if bbox_2d:
-#                     bboxes.append(bbox_2d)
-#                     cat_ids.append(cat_id)
-#                 else:
-#                     num_blocked += 1
-
-#         # Include instances
-#         filtered_instance_objs = filter_objects_for_instance_selection(object_list)
-#         if filtered_instance_objs:
-#             instance_bboxes, instance_cat_ids = loop_over_instances_from_selection(
-#                 filtered_selection_list=filtered_instance_objs,
-#                 cam=cam,
-#                 scene=scene,
-#                 min_bbox_size=5,
-#                 use_raycast=use_raycast,
-#                 raycast_method=raycast_method,
-#                 visibility_threshold=visibility_threshold
-#             )
-
-#             if instance_bboxes:
-#                 bboxes.extend(instance_bboxes)
-#                 cat_ids.extend(instance_cat_ids)
-#             else:
-#                 num_blocked += 1 
-
-#     elif mode == 'PARTICLE':
-#         emitter_list = scene.blv_settings.selected_emitter
-
-#         for emitr in emitter_list:
-#             part_bboxes, part_cat = loop_over_particles(emitr, cam, scene,
-#                                                         use_raycast=use_raycast,
-#                                                         raycast_method=raycast_method)
-#             if part_bboxes:
-#                 bboxes.extend(part_bboxes)
-#                 cat_ids.extend(part_cat)
-#             else:
-#                 num_blocked += 1
-
-#     # Save if needed
-#     if save_bool:
-#         if formatting == "YOLO":
-#             generate_yolo_category_files(label_dir, category_mapping)
-#             save_bboxes_yolo_format(bboxes, cat_ids, scene.frame_current,
-#                                     render_res[0], render_res[1], label_dir, category_mapping)
-#         elif formatting == "COCO":
-#             save_bboxes_coco_format(bboxes, cat_ids, scene.frame_current,
-#                                     render_res[0], render_res[1], label_dir)
-
-#     return bboxes, cat_ids, num_blocked, category_mapping, messages
-
 def compute_bounding_boxes(scene, include_save=True):
     """
     Computes 2D bounding boxes for objects in the scene using the active camera.
@@ -342,12 +225,17 @@ def compute_bounding_boxes(scene, include_save=True):
 
     return bboxes, cat_ids, num_blocked, category_mapping, messages
 
+
+classes = [
+    RunMeshBBoxOperator,
+    ChangeRenderDirectoryToFormat,
+    RunTestMeshBBoxOperator,
+]
 def register():
-    bpy.utils.register_class(RunMeshBBoxOperator)
-    bpy.utils.register_class(ChangeRenderDirectoryToFormat)
-    bpy.utils.register_class(RunTestMeshBBoxOperator)
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
 
 def unregister():
-    bpy.utils.unregister_class(RunMeshBBoxOperator)
-    bpy.utils.unregister_class(ChangeRenderDirectoryToFormat)
-    bpy.utils.unregister_class(RunTestMeshBBoxOperator)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)

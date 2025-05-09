@@ -40,7 +40,7 @@ class RunMeshBBoxOperator(bpy.types.Operator):
 
 
         if bboxes:
-            self.report({'INFO'}, f"✅ Found {len(bboxes)} bounding boxes | Blocked: {num_blocked}")
+            self.report({'INFO'}, f"✅ Found {len(bboxes)} bounding boxes | Out of View: {num_blocked}")
         else:
             self.report({'WARNING'}, f"⚠️ No bounding boxes detected in frame {scene.frame_current}.")
 
@@ -59,7 +59,7 @@ class RunTestMeshBBoxOperator(bpy.types.Operator):
             self.report({level}, msg)
 
         if bboxes:
-            self.report({'INFO'}, f"[TEST] Found {len(bboxes)} bounding boxes | Blocked: {num_blocked}")
+            self.report({'INFO'}, f"[TEST] Found {len(bboxes)} bounding boxes | Out of View: {num_blocked}")
         else:
             self.report({'WARNING'}, f"⚠️ [TEST] No bounding boxes detected in frame {scene.frame_current}.")
 

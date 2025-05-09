@@ -58,6 +58,27 @@ class BBoxTrackingProperties(bpy.types.PropertyGroup):
     selected_emitter: bpy.props.CollectionProperty(type=BBoxSelectionItem)
     active_emitter_index: bpy.props.IntProperty()
 
+    raycast_bool: bpy.props.BoolProperty(
+        name="Use Raycast",
+        description="Check if objects are blocked (occluded) by other objects. Uses raycast methods.",
+        default=False,
+    )
+    raycast_enum: bpy.props.EnumProperty(
+        name="Raycast method",
+        description="Choose between different raycast methods to check for blocked (occluded) objects.",
+        items=[
+            ("fast", "Object Origin (Fast)", "Casts a single ray to the object center."),
+            ("accurate", "Projected Mesh (Accurate)", "Casts rays to all object mesh that is facing the camera."),
+        ]
+    )
+    visibility_threshold: bpy.props.FloatProperty(
+        name="Visibility Threshold",
+        description="Minimum percentage of visible vertices hit for object to be counted as visible",
+        default=0.5,
+        min=0.0,
+        max=1.0,
+    )
+
 
 # --------------------------
 # UI Lists
@@ -114,8 +135,6 @@ class BBOX_PT_TrackingPanel(bpy.types.Panel):
             row = col.row(align=True)
             row.operator("bbox.add_object", text="Add")
             row.operator("bbox.remove_object", text="Remove")
-            col.operator("bbox.auto_assign_categories", text="Auto Assign Categories")
-            col.operator("blv.run_yolo_mesh_bbox", text="Test Run Operator")
 
         elif settings.mode == 'COLLECTION':
             col = layout.column()
@@ -128,8 +147,8 @@ class BBOX_PT_TrackingPanel(bpy.types.Panel):
             row = col.row(align=True)
             row.operator("bbox.add_collection", text="Add")
             row.operator("bbox.remove_collection", text="Remove")
-            col.operator("bbox.auto_assign_categories", text="Auto Assign Categories")
-            col.operator("blv.run_yolo_mesh_bbox", text="Test Run Operator")
+
+
 
         elif settings.mode == 'PARTICLE':
             col = layout.column()
@@ -142,8 +161,17 @@ class BBOX_PT_TrackingPanel(bpy.types.Panel):
             row = col.row(align=True)
             row.operator("bbox.add_partsys", text="Add")
             row.operator("bbox.remove_partsys", text="Remove")
-            col.operator("bbox.auto_assign_categories", text="Auto Assign Categories")
-            col.operator("blv.run_yolo_mesh_bbox", text="Test Run Operator")
+        
+        layout.operator("bbox.auto_assign_categories", text="Auto Assign Categories")
+        layout.label(text="Raycast (Occlusion)")
+        layout.prop(settings, "raycast_bool")
+        if settings.raycast_bool:
+            layout.prop(settings, "raycast_enum")
+            if settings.raycast_enum == "accurate":
+                layout.prop(settings,"visibility_threshold")
+
+        layout.label(text="Testing")
+        layout.operator("blv.run_yolo_mesh_bbox", text="Test Bounding Boxes")
 
 
 # --------------------------

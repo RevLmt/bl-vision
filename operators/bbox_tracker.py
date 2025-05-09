@@ -47,9 +47,9 @@ class RunMeshBBoxOperator(bpy.types.Operator):
         formatting = scene.blv_save.format_enum
         category_mapping = {}
 
-        use_raycast = scene.blv_save.raycast_bool
-        raycast_method = scene.blv_save.raycast_enum
-        visibility_threshold = scene.blv_save.visibility_threshold
+        use_raycast = scene.blv_settings.raycast_bool
+        raycast_method = scene.blv_settings.raycast_enum
+        visibility_threshold = scene.blv_settings.visibility_threshold
 
         if mode == "COLLECTION":
             collection_list = scene.blv_settings.selected_collections
@@ -138,6 +138,17 @@ class RunMeshBBoxOperator(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class RunTestMeshBBoxOperator(bpy.types.Operator):
+    bl_idname = "blv.run_test_mesh_bbox"
+    bl_label = "Test run of mesh bounding box operator. It will count bboxes for you. Uses raycast if enabled."
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        save_settings = context.scene.blv_save
+        save_settings.bbox_bool = False
+        bpy.ops.blv.run_yolo_mesh_bbox()
+        save_settings.bbox_bool = True
+        return {'FINISHED'}
 
 class ChangeRenderDirectoryToFormat(bpy.types.Operator):
     bl_idname = "blv.change_render_dir_to_format"
@@ -155,7 +166,9 @@ class ChangeRenderDirectoryToFormat(bpy.types.Operator):
 def register():
     bpy.utils.register_class(RunMeshBBoxOperator)
     bpy.utils.register_class(ChangeRenderDirectoryToFormat)
+    bpy.utils.register_class(RunTestMeshBBoxOperator)
 
 def unregister():
     bpy.utils.unregister_class(RunMeshBBoxOperator)
     bpy.utils.unregister_class(ChangeRenderDirectoryToFormat)
+    bpy.utils.unregister_class(RunTestMeshBBoxOperator)

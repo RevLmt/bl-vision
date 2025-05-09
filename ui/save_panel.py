@@ -73,27 +73,7 @@ class saveDataProperties(bpy.types.PropertyGroup):
             ("SEMANTIC", "Semantic", "Save semantic (categorical) segmentation"),
         ]
     )
-    raycast_bool: bpy.props.BoolProperty(
-        name="Use Raycast",
-        description="Check if objects are blocked (occluded) by other objects. Uses raycast methods.",
-        default=False,
-    )
-    raycast_enum: bpy.props.EnumProperty(
-        name="Raycast method",
-        description="Choose between different raycast methods to check for blocked (occluded) objects.",
-        items=[
-            ("fast", "Object Origin (Fast)", "Casts a single ray to the object center."),
-            ("accurate", "Projected Mesh (Accurate)", "Casts rays to all object mesh that is facing the camera."),
-            ("bvh_tree", "BVH Tree", "Uses BVH Tree for efficient and accurate raycasting.")
-        ]
-    )
-    visibility_threshold: bpy.props.FloatProperty(
-        name="Visibility Threshold",
-        description="Minimum percentage of visible vertices hit for object to be counted as visible",
-        default=0.5,
-        min=0.0,
-        max=1.0,
-    )
+
     use_custom_paths: bpy.props.BoolProperty(
         name="Custom Paths",
         description="Enable manual path overrides for images and labels/annotations.",
@@ -119,6 +99,16 @@ class saveDataProperties(bpy.types.PropertyGroup):
         name="Resolved Label/Annotation Path",
         subtype="DIR_PATH",
         default=""
+    )
+    obb_bool: bpy.props.BoolProperty(
+        name="Object-Oriented BBox (Coming Soon)",
+        description="Output Object Oriented BBox",
+        default=False,
+    )
+    pose_bool: bpy.props.BoolProperty(
+        name="Object Pose (Coming Soon)",
+        description="Output object pose information",
+        default=False,
     )
 
 ####################################
@@ -213,27 +203,24 @@ class saveDataPanel(bpy.types.Panel):
         save_props = scene.blv_save
 
         layout.prop(save_props, "format_enum")
-        layout.prop(save_props, "root_path")
+        
         layout.prop(save_props, "bbox_bool")
+        col = layout.column()
+        col.active = False
+        col.prop(save_props, "pose_bool")
+        col.prop(save_props, "obb_bool")
+        col.prop(save_props, "segm_bool")
         if save_props.bbox_bool:
-            layout.prop(save_props, "raycast_bool")
-            if save_props.raycast_bool:
-                layout.prop(save_props, "raycast_enum")
-                if save_props.raycast_enum == "accurate" or save_props.raycast_enum == "bvh_tree":
-                    layout.prop(save_props,"visibility_threshold")
-        layout.prop(save_props, "segm_bool")
-        if save_props.segm_bool:
-            layout.prop(save_props, "segm_enum")
+            layout.prop(save_props, "root_path")
+            layout.prop(save_props, "use_custom_paths")
+            if save_props.use_custom_paths:
+                layout.prop(save_props, "custom_image_path")
+                layout.prop(save_props, "custom_label_path")
 
-        layout.prop(save_props, "use_custom_paths")
-        if save_props.use_custom_paths:
-            layout.prop(save_props, "custom_image_path")
-            layout.prop(save_props, "custom_label_path")
-
-        # Display paths without modifying them in draw()
-        image_path, label_path = get_dataset_paths(save_props)
-        layout.label(text=f"📁 Images: {image_path}")
-        layout.label(text=f"📝 Labels/Annotations: {label_path}")
+            # Display paths without modifying them in draw()
+            image_path, label_path = get_dataset_paths(save_props)
+            layout.label(text=f"📁 Images: {image_path}")
+            layout.label(text=f"📝 Labels/Annotations: {label_path}")
 
 
 classes = [

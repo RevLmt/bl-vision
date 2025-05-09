@@ -171,7 +171,7 @@ class BBOX_PT_TrackingPanel(bpy.types.Panel):
                 layout.prop(settings,"visibility_threshold")
 
         layout.label(text="Testing")
-        layout.operator("blv.run_yolo_mesh_bbox", text="Test Bounding Boxes")
+        layout.operator("blv.run_test_mesh_bbox", text="Test Bounding Boxes")
 
 
 # --------------------------

@@ -155,12 +155,8 @@ def render_handler(scene):
         props.label_path = label_path
         ensure_label_folder_exists(label_path)
         print("✅ Running YOLO Bounding Box Operator after render...")
-        bpy.ops.blv.run_yolo_mesh_bbox()
-        # def defer_yolo_operator():
-        #     bpy.ops.blv.run_yolo_mesh_bbox()
-        #     return None
+        bpy.ops.blv.run_mesh_bbox()
 
-        # bpy.app.timers.register(defer_yolo_operator)
     if props.segm_bool:
         # Optionally: ensure output folder for segmentation too, if you want
         segm_label_path = props.label_path

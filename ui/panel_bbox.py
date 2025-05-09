@@ -97,6 +97,7 @@ class BBOX_UL_CollectionList(bpy.types.UIList):
         row = layout.row(align=True)
         row.prop(item, "collection", text="", emboss=True)
         row.prop(item, "category_id", text="", emboss=True)
+        row.prop(item, "include_instances", text="", icon='MOD_ARRAY', emboss=True)
 
 
 class BBOX_UL_EmitterList(bpy.types.UIList):
@@ -142,6 +143,7 @@ class BBOX_PT_TrackingPanel(bpy.types.Panel):
             header = col.row(align=True)
             header.label(text="Collection")
             header.label(text="Category")
+            header.label(text="Use Instances", icon='MOD_ARRAY')
             col.template_list("BBOX_UL_CollectionList", "", settings, "selected_collections", settings, "active_collection_index")
 
             row = col.row(align=True)

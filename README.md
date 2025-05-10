@@ -41,6 +41,22 @@ To install the add-on in Blender:
 
 ---
 
+## Where to Access
+
+1. Press N in the 3D Viewport.
+2. Click on the tab BL Vision.
+
+## How to Use
+
+1. Select a mode: Object, Collection, or Particle Emitter
+2. Select items (objects, collections, or particle emitters) you would like to generate annotations for.
+3. Assign category ID's either manually or using the "Auto Assign Categories" button.
+4. To ignore items blocked/occluded from the active camera view, click Raycast.
+5. In Data Output, select a format.
+6. Check Bounding Box to open up save path options.
+7. Render the Animation (CTRL + F12).
+8. View your bounding boxes in the directory you chose.
+
 ## 🛠️ Upcoming Features
 
 - Segmentation mask support

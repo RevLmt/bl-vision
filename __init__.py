@@ -34,8 +34,8 @@ from . import addon_updater_ops
 
 
 @addon_updater_ops.make_annotations
-class DemoPreferences(bpy.types.AddonPreferences):
-	"""Demo bare-bones preferences"""
+class UpdaterPreferences(bpy.types.AddonPreferences):
+	"""bare-bones preferences for updater"""
 	bl_idname = __package__
 
 	# Addon updater preferences.
@@ -96,8 +96,7 @@ class DemoPreferences(bpy.types.AddonPreferences):
 
 
 classes = (
-	DemoPreferences,
-	# DemoUpdaterPanel
+	UpdaterPreferences,
 )
 
 def register():

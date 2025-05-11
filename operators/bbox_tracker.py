@@ -32,7 +32,7 @@ class RunMeshBBoxOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        bboxes, cat_ids, num_blocked, cat_map, objects, messages = compute_bounding_boxes(scene, include_save=True)
+        bboxes, cat_ids, num_blocked, cat_map, messages = compute_bounding_boxes(scene, include_save=True)
         
 
         for level, msg in messages:

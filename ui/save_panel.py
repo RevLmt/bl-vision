@@ -19,11 +19,10 @@ Created by Ryan Revilla
 '''
 
 import bpy
-import os
+from pathlib import Path
 from bpy.app.handlers import persistent
 
-home_dir = os.path.expanduser('~')
-DEFAULT_SAVE_PATH = os.path.join(home_dir, 'Downloads')
+DEFAULT_SAVE_PATH = str(Path.home() / "Downloads")
 
 
 
@@ -121,33 +120,33 @@ class saveDataProperties(bpy.types.PropertyGroup):
 ####################################
 # Utility to resolve dataset paths
 def get_dataset_paths(props):
-    if props.use_custom_paths:
-        return props.custom_image_path, props.custom_label_path
-
-    root = props.root_path
+    root = Path(props.root_path)
     fmt = props.format_enum
 
+    if props.use_custom_paths:
+        return Path(props.custom_image_path), Path(props.custom_label_path)
+
     if fmt == "YOLO":
-        return os.path.join(root, "images"), os.path.join(root, "labels")
+        return root / "images" / "train", root / "labels" / "train"
     elif fmt == "COCO":
-        return os.path.join(root, "images"), os.path.join(root, "annotations")
+        return root / "images" / "train", root / "annotations"
     else:
         return root, root
 
 # Create output folder if it doesn't exist (except for images)
 def ensure_label_folder_exists(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-        print(f"📁 Created directory: {path}")
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
+    print(f"📁 Created directory: {path}")
 
 
 # set render path and label path
 def toggle_change_render_dir(self, context):
     if self.bbox_bool:
         image_path, label_path = get_dataset_paths(self)
-        bpy.context.scene.render.filepath = os.path.join(image_path, self.file_prefix)
-        self.image_path = image_path
-        self.label_path = label_path
+        bpy.context.scene.render.filepath = str(Path(image_path) / self.file_prefix)
+        self.image_path = str(image_path)
+        self.label_path = str(label_path)
         print(f"Render filepath set to: {image_path}")
 
 
@@ -156,8 +155,8 @@ def render_handler(scene):
     props = scene.blv_save
     if props.bbox_bool:
         image_path, label_path = get_dataset_paths(props)
-        props.image_path = image_path
-        props.label_path = label_path
+        props.image_path = str(image_path)
+        props.label_path = str(label_path)
         ensure_label_folder_exists(label_path)
         print("✅ Running YOLO Bounding Box Operator after render...")
         bpy.ops.blv.run_mesh_bbox()

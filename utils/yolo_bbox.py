@@ -18,7 +18,7 @@ Created by Ryan Revilla
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import os
+from pathlib import Path
 
 
 ###
@@ -28,8 +28,9 @@ import os
 def save_bboxes_yolo_format(bboxes, category_ids, frame_num, image_width, image_height, output_dir, category_mapping, prefix=""):
     """ Saves bounding boxes in YOLO format and generates category files """
 
-    os.makedirs(output_dir, exist_ok=True)
-    label_file = os.path.join(output_dir, f"{prefix}{frame_num:04d}.txt")
+    output_dir = Path(output_dir) 
+    output_dir.mkdir(parents=True, exist_ok=True)
+    label_file = output_dir / f"{prefix}{frame_num:04d}.txt"
 
     if not bboxes:
         print(f"⚠️ No valid bboxes for frame {frame_num}. Skipping file.")
@@ -38,7 +39,7 @@ def save_bboxes_yolo_format(bboxes, category_ids, frame_num, image_width, image_
         return
 
     # Write YOLO annotation file
-    with open(label_file, "w") as f:
+    with label_file.open("w") as f:
         for i, bbox in enumerate(bboxes):
             (min_x, min_y), (max_x, max_y) = bbox
 
@@ -57,10 +58,13 @@ def save_bboxes_yolo_format(bboxes, category_ids, frame_num, image_width, image_
 def generate_yolo_category_files(output_dir, category_mapping):
     """Generates YOLO category files: `data.yaml` (Ultralytics-style)."""
 
-    yaml_path = os.path.join(output_dir, "data.yaml")
+    output_dir = Path(output_dir) 
+    yaml_path = output_dir.parents[1] / "data.yaml"
+    dataset_root = output_dir.parents[1] 
+
     write_ultralytics_yaml(
         output_path=yaml_path,
-        dataset_root=output_dir,
+        dataset_root=dataset_root,
         train_dir="images/train",
         val_dir="images/val",
         category_mapping=category_mapping  # real ID mapping
@@ -79,18 +83,11 @@ def write_yolo_config_yaml(path, train_path, val_path, class_names):
             f.write(f"  {i}: {name}\n")
 
 # method for writing yolo ultralytics format yaml file
-def write_ultralytics_yaml(
-    output_path,
-    dataset_root="../dataset",  # base folder, relative or absolute
-    train_dir="images/train",
-    val_dir="images/val",
-    test_dir=None,  # optional
-    category_mapping=None  # dict like {12: 'apple', 15: 'banana'}
-):
-    if category_mapping is None:
-        category_mapping = {}
+def write_ultralytics_yaml(output_path, dataset_root, train_dir, val_dir, test_dir=None, category_mapping=None):
+    output_path = Path(output_path)
+    dataset_root = Path(dataset_root)
 
-    with open(output_path, "w") as f:
+    with output_path.open("w") as f:
         f.write(f"path: {dataset_root}\n")
         f.write(f"train: {train_dir}\n")
         f.write(f"val: {val_dir}\n")
@@ -99,5 +96,6 @@ def write_ultralytics_yaml(
         f.write("names:\n")
         for cid in sorted(category_mapping.keys()):
             f.write(f"  {cid}: {category_mapping[cid]}\n")
+
 
 

@@ -33,9 +33,11 @@ To install the add-on in Blender:
 1. Clone or download this repository as a ZIP file.
 2. Open Blender (version 4.2 or higher).
 3. Go to **Edit > Preferences**.
+    ![Blender Preferences Location](/images/blender-preferences.png)
 4. Select the **Add-ons** tab.
 5. Click the **downward-facing arrow icon** in the upper right corner.
 6. Choose **Install from Disk...** from the dropdown.
+    ![Install from disk](/images/Install_from_disk.png)
 7. Select the downloaded ZIP file.
 8. Enable the checkbox next to the add-on to activate it.
 

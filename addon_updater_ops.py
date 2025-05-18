@@ -1443,13 +1443,13 @@ def register(bl_info):
     # but the user has the option from user preferences to directly
     # update to the master branch or any other branches specified using
     # the "install {branch}/older version" operator.
-    updater.include_branches = True
+    updater.include_branches = False
 
     # (GitHub only) This options allows using "releases" instead of "tags",
     # which enables pulling down release logs/notes, as well as installs update
     # from release-attached zips (instead of the auto-packaged code generated
     # with a release/tag). Setting has no impact on BitBucket or GitLab repos.
-    updater.use_releases = False
+    updater.use_releases = True
     # Note: Releases always have a tag, but a tag may not always be a release.
     # Therefore, setting True above will filter out any non-annotated tags.
     # Note 2: Using this option will also display (and filter by) the release
@@ -1460,7 +1460,7 @@ def register(bl_info):
     # Note: updater.include_branch_list defaults to ['master'] branch if set to
     # none. Example targeting another multiple branches allowed to pull from:
     # updater.include_branch_list = ['master', 'dev']
-    updater.include_branch_list = None  # None is the equivalent = ['master']
+    updater.include_branch_list = ['main']  # None is the equivalent = ['master']
 
     # Only allow manual install, thus prompting the user to open
     # the addon's web page to download, specifically: updater.website
@@ -1485,7 +1485,7 @@ def register(bl_info):
     # Set the min and max versions allowed to install.
     # Optional, default None
     # min install (>=) will install this and higher
-    updater.version_min_update = (0, 0, 0)
+    updater.version_min_update = (1, 0, 0)
     # updater.version_min_update = None  # None or default for no minimum.
 
     # Max install (<) will install strictly anything lower than this version

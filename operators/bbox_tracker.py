@@ -213,7 +213,7 @@ def compute_bounding_boxes(scene, include_save=True):
             if part_bboxes:
                 bboxes.extend(part_bboxes)
                 cat_ids.extend(part_cat)
-                category_mapping[cat_ids[0]] = part_name
+                category_mapping[cat_ids[0]] = part_name[0]
 
             else:
                 num_blocked += 1

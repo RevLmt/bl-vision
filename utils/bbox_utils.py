@@ -285,8 +285,10 @@ def loop_over_particles(sel_emitter, cam, scene, *,
     for i, psys in enumerate(particle_systems):
         psys_settings = emitter_obj.particle_systems[i].settings
         cat_id = sel_emitter.category_id
+        cat_ids.append(cat_id)
         instance_obj = psys_settings.instance_object
         cat_name = instance_obj.name
+        cat_names.append(cat_name)
 
         if not instance_obj:
             continue
@@ -325,8 +327,8 @@ def loop_over_particles(sel_emitter, cam, scene, *,
             )
             if bb_2d:
                 bboxes.append(bb_2d)
-                cat_ids.append(cat_id)
-                cat_names.append(cat_name)
+                # cat_ids.append(cat_id)
+                # cat_names.append(cat_name)
 
     return bboxes, cat_ids, cat_names
 

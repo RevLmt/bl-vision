@@ -202,18 +202,21 @@ def compute_bounding_boxes(scene, include_save=True):
 
     elif mode == 'PARTICLE':
         emitter_list = scene.blv_settings.selected_emitter
-        
+        # get evaluated depsgraph
 
         for emitr in emitter_list:
+            cat_id = emitr.category_id
+            # for each particle emitter, get cat_id and rendered object name
 
 
-            part_bboxes, part_cat, part_name = loop_over_particles(emitr, cam, scene,
+            part_bboxes, part_cat_ids, part_names = loop_over_particles(emitr, cam, scene,
                                                         use_raycast=use_raycast,
                                                         raycast_method=raycast_method)
             if part_bboxes:
                 bboxes.extend(part_bboxes)
-                cat_ids.extend(part_cat)
-                category_mapping[cat_ids[0]] = part_name[0]
+                cat_ids.extend(part_cat_ids)
+                for cid, name in zip(part_cat_ids, part_names):
+                    category_mapping[cid] = name
 
             else:
                 num_blocked += 1

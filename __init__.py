@@ -23,7 +23,7 @@ bl_info = {
     "blender": (4, 2, 0),
     "category": "Object",
     "author": "Ryan Revilla, RevLmt",
-    "version": (1, 0, 3),
+    "version": (1, 0, 4),
     "description": "Generate datasets for ML vision applications.",
 }
 

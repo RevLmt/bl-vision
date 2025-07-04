@@ -6,6 +6,10 @@ Export in YOLO or COCO format. Automate multi-angle, multi-light dataset creatio
 To get free starter Blender files along with the add-on, check out my website: [RRX Engineering GumRoad](https://rrxengineering.gumroad.com/l/bl-vision)
 
 For a walkthrough check out the YouTube video on it: [BL-Vision Walkthrough](https://youtu.be/RpkObzZebEw?si=HOy2GaxOPvOS5cUb)
+
+For an article covering the motivation behind this add-on as well as some background: 
+[Towards an Accessible Way of Creating Synthetic Images for Vision Models](https://medium.com/ai-advances/towards-an-accessible-way-of-creating-synthetic-images-for-vision-models-b7117cf2a155?sk=94505de6b19fa226babc5d4458da6a7f)
+
 ---
 
 ## Features

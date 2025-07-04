@@ -10,6 +10,8 @@ For a walkthrough check out the YouTube video on it: [BL-Vision Walkthrough](htt
 For an article covering the motivation behind this add-on as well as some background: 
 [Towards an Accessible Way of Creating Synthetic Images for Vision Models](https://medium.com/ai-advances/towards-an-accessible-way-of-creating-synthetic-images-for-vision-models-b7117cf2a155?sk=94505de6b19fa226babc5d4458da6a7f)
 
+[**Documentation**](https://github.com/RevLmt/bl-vision/wiki) is on the GitHub Wiki of this Repo.
+
 ---
 
 ## Features

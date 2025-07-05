@@ -39,7 +39,7 @@ Ideal for:
 
 To install the add-on in Blender:
 
-1. Clone or download this repository as a ZIP file.
+1. Download the latest release as a ZIP file.
 2. Open Blender (version 4.2 or higher).
 3. Go to **Edit > Preferences**.
     ![Blender Preferences Location](/images/blender-preferences.png)

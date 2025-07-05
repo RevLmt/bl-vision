@@ -12,6 +12,8 @@ For an article covering the motivation behind this add-on as well as some backgr
 
 [**Documentation**](https://github.com/RevLmt/bl-vision/wiki) is on the GitHub Wiki of this Repo.
 
+**Important** The easiest, most stable install comes by downloading the latest release!
+
 ---
 
 ## Features

@@ -74,6 +74,9 @@ To install the add-on in Blender:
 - Object-oriented bounding boxes
 - Object pose annotation support
 
+## Contribution
+Contribuiting guidelines coming soon!
+
 ---
 
 ## 📄 License

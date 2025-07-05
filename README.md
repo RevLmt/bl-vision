@@ -21,6 +21,7 @@ For an article covering the motivation behind this add-on as well as some backgr
 - Designed for **fast synthetic dataset creation** inside Blender
 - Outputs paired images and annotation files ready for training
 - Fully supports Blender 4.2+
+- Updates via the Blender GUI. Only need to install once.
 
 ---
 
@@ -67,6 +68,15 @@ To install the add-on in Blender:
 6. Check Bounding Box to open up save path options.
 7. Render the Animation (CTRL + F12).
 8. View your bounding boxes in the directory you chose.
+
+## Updates
+Comes with an updater inside of the Blender GUI. Any new releases will be available there. No need to go to GitHub to download the latest release. 
+
+To update:
+1. Go to Preferences
+2. Go to Add-Ons
+3. Expand the tab for bl-vision
+4. Click check for updates
 
 ## 🛠️ Upcoming Features
 

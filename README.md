@@ -12,7 +12,7 @@ For an article covering the motivation behind this add-on as well as some backgr
 
 [**Documentation**](https://github.com/RevLmt/bl-vision/wiki) is on the GitHub Wiki of this Repo.
 
-**Important** The easiest, most stable install comes by downloading the latest release!
+**Important** The easiest, most stable install comes by downloading the latest release! You'll need to change the naming of the zip and its containing folder to "bl-vision" (without the version number). If you want to not deal with that, just download the add-on from the Gumroad link above.
 
 ---
 

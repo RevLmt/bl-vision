@@ -3,8 +3,6 @@
 **Generate 2D bounding boxes directly in Blender for object detection datasets.**  
 Export in YOLO or COCO format. Automate multi-angle, multi-light dataset creation—no coding required.
 
-To get free starter Blender files along with the add-on, check out my website: [RRX Engineering GumRoad](https://rrxengineering.gumroad.com/l/bl-vision)
-
 For a walkthrough check out the YouTube video on it: [BL-Vision Walkthrough](https://youtu.be/RpkObzZebEw?si=HOy2GaxOPvOS5cUb)
 
 For an article covering the motivation behind this add-on as well as some background: 

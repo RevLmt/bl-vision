@@ -9,6 +9,7 @@ For an article covering the motivation behind this add-on as well as some backgr
 [Towards an Accessible Way of Creating Synthetic Images for Vision Models](https://medium.com/ai-advances/towards-an-accessible-way-of-creating-synthetic-images-for-vision-models-b7117cf2a155?sk=94505de6b19fa226babc5d4458da6a7f)
 
 [**Documentation**](https://github.com/RevLmt/bl-vision/wiki) is on the GitHub Wiki of this Repo.
+- Be sure to read the [Getting Started](https://github.com/RevLmt/bl-vision/wiki/Getting-Started) section!
 
 **Important** The easiest, most stable install comes by downloading the latest release! You'll need to change the naming of the zip and its containing folder to "bl-vision" (without the version number). If you want to not deal with that, just download the add-on from the Gumroad link found here: [**Download on Gumroad**](https://ryanrevilla.gumroad.com/l/bl-vision)
 
